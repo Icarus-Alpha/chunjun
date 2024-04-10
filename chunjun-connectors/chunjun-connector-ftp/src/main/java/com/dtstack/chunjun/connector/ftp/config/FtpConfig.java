@@ -25,7 +25,6 @@ import com.dtstack.chunjun.constants.ConstantValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.dtstack.chunjun.connector.ftp.config.ConfigConstants.DEFAULT_FTP_PORT;
@@ -92,10 +91,4 @@ public class FtpConfig extends BaseFileConfig {
             port = DEFAULT_FTP_PORT;
         }
     }
-
-    /** 工作表 */
-    public List<Integer> sheetNo;
-
-    /** 字段对应的列索引 */
-    public List<Integer> columnIndex;
 }

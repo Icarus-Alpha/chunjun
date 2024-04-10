@@ -88,7 +88,7 @@ public class ExcelFileFormat implements IFileReadFormat {
                                 .namingPattern("excel-schedule-pool-%d")
                                 .daemon(false)
                                 .build());
-        ExcelReaderExecutor executor = new ExcelReaderExecutor(reader, ec, config);
+        ExcelReaderExecutor executor = new ExcelReaderExecutor(reader, ec);
         executorService.execute(executor);
     }
 
