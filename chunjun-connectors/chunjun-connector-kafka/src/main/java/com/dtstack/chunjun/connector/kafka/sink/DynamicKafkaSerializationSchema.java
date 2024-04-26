@@ -32,7 +32,6 @@ import com.dtstack.chunjun.util.ReflectionUtils;
 
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.accumulators.LongCounter;
-import org.apache.flink.api.common.accumulators.LongMaximum;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -106,7 +105,7 @@ public class DynamicKafkaSerializationSchema
     protected RowSizeCalculator rowSizeCalculator;
 
     protected LongCounter bytesWriteCounter;
-    protected LongMaximum durationCounter;
+    protected LongCounter durationCounter;
     protected LongCounter numWriteCounter;
     protected LongCounter snapshotWriteCounter;
     protected LongCounter errCounter;
@@ -367,7 +366,7 @@ public class DynamicKafkaSerializationSchema
         bytesWriteCounter = runtimeContext.getLongCounter(Metrics.WRITE_BYTES);
         try {
             durationCounter =
-                    (LongMaximum)
+                    (LongCounter)
                             Objects.requireNonNull(
                                             ReflectionUtils.getDeclaredMethod(
                                                     runtimeContext,
@@ -377,7 +376,7 @@ public class DynamicKafkaSerializationSchema
                                     .invoke(
                                             runtimeContext,
                                             Metrics.WRITE_DURATION,
-                                            LongMaximum.class);
+                                            LongCounter.class);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new ChunJunRuntimeException(e);
         }
@@ -431,8 +430,9 @@ public class DynamicKafkaSerializationSchema
     /** 更新任务执行时间指标 */
     private void updateDuration() {
         if (durationCounter != null) {
-            durationCounter.resetLocal();
-            durationCounter.add(System.currentTimeMillis() - startTime);
+            long currentTime = System.currentTimeMillis();
+            durationCounter.add(currentTime - startTime);
+            startTime = currentTime; // 重置开始时间为当前时间
         }
     }
 

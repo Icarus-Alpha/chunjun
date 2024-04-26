@@ -32,7 +32,6 @@ import com.dtstack.chunjun.util.ReflectionUtils;
 
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.accumulators.LongCounter;
-import org.apache.flink.api.common.accumulators.LongMaximum;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -96,7 +95,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     protected LongCounter numReadCounter;
 
     protected LongCounter bytesReadCounter;
-    protected LongMaximum durationCounter;
+    protected LongCounter durationCounter;
     protected LongCounter nReadErrors;
 
     private transient RuntimeContext runtimeContext;
@@ -273,8 +272,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     /** 更新任务执行时间指标 */
     private void updateDuration() {
         if (durationCounter != null) {
-            durationCounter.resetLocal();
-            durationCounter.add(System.currentTimeMillis() - startTime);
+            long duration = System.currentTimeMillis() - startTime;
+            durationCounter.add(duration); // 累加每次操作的持续时间
+            startTime = System.currentTimeMillis(); // 重置开始时间为当前时间
         }
     }
 
@@ -297,7 +297,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         bytesReadCounter = getRuntimeContext().getLongCounter(Metrics.READ_BYTES);
         try {
             durationCounter =
-                    (LongMaximum)
+                    (LongCounter)
                             ReflectionUtils.getDeclaredMethod(
                                             runtimeContext,
                                             "getAccumulator",
@@ -306,7 +306,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
                                     .invoke(
                                             runtimeContext,
                                             Metrics.READ_DURATION,
-                                            LongMaximum.class);
+                                            LongCounter.class);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new ChunJunRuntimeException(e);
         }
