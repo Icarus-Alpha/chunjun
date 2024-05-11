@@ -122,7 +122,7 @@ public class OraclelogminerDynamicTableFactory implements DynamicTableSourceFact
                 config.get(LogminerOptions.TRANSACTION_CACHE_NUM_SIZE));
         logMinerConf.setTransactionExpireTime(config.get(LogminerOptions.TRANSACTION_EXPIRE_TIME));
 
-        logMinerConf.setPavingData(true);
+        logMinerConf.setPavingData(false);
         logMinerConf.setSplit(true);
 
         return logMinerConf;

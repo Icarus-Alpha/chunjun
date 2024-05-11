@@ -271,8 +271,9 @@ public final class FactoryUtil {
     public static <T extends Factory> T discoverFactory(
             ClassLoader classLoader, Class<T> factoryClass, String factoryIdentifier) {
         final List<Factory> factories;
-        if (factoryIdentifier.toLowerCase().endsWith("-x")) {
-            String s = factoryIdentifier.substring(0, factoryIdentifier.length() - 2);
+        if (factoryIdentifier.toLowerCase().endsWith("-x")
+                || factoryIdentifier.toLowerCase().equals("mysql-cdc")) {
+            String s = factoryIdentifier.replace("-x", "").replace("mysql-cdc", "mysqlcdc");
             FactoryHelper factoryHelper = factoryHelperThreadLocal.get();
             if (factoryHelper != null) {
                 factoryHelper.registerCachedFile(s, classLoader, ConstantValue.CONNECTOR_DIR_NAME);
